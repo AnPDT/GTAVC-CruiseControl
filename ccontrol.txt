@@ -1,0 +1,148 @@
+{$CLEO .cs}
+0000:
+:mod_activate
+wait 10 ms
+if 05EE: key_pressed 116
+jf @mod_activate
+wait 200 ms
+0AD1: show_formatted_text_highpriority "Cruise Control Activated" time 1000
+:char_activity
+wait 10 ms
+if 05EE: key_pressed 116 
+then
+    wait 200 ms
+    0AD1: show_formatted_text_highpriority "Cruise Control Deactivated" time 1000
+    jump @mod_activate
+end
+if and
+    0256: player $PLAYER_CHAR defined    
+    00DF: actor $PLAYER_ACTOR in_any_car
+jf @char_activity
+03C0: 1@ = actor $PLAYER_ACTOR car
+0007: 2@ = 20.0 //default speed
+0227: 3@ = car 1@ health
+0085: 4@ = 3@
+0006: 5@ = 0
+0006: 7@ = 0
+0006: 8@ = 0
+if 047A: actor $PLAYER_ACTOR on_any_bike
+then
+    while true
+        wait 10 ms
+        if 05EE: key_pressed 49
+        then 02D4: car 1@ turn_off_engine
+        end
+        if 05EE: key_pressed 116
+        then
+            wait 200 ms        
+            01C3: remove_references_to_car 1@
+            0AD1: show_formatted_text_highpriority "Cruise Control Deactivated" time 1000
+            jump @mod_activate
+        end
+        if 80DB: not actor $PLAYER_ACTOR in_car 1@
+        then        
+            01C3: remove_references_to_car 1@
+            jump @char_activity
+        end
+    end
+else    
+    while 003B: 4@ == 3@
+        wait 10 ms
+        if 05EE: key_pressed 116
+        then
+            wait 200 ms        
+            01C3: remove_references_to_car 1@
+            0AD1: show_formatted_text_highpriority "Cruise Control Deactivated" time 1000
+            jump @mod_activate
+        end
+        if 05EE: key_pressed 49
+        then 02D4: car 1@ turn_off_engine
+        end
+        if 80DB: not actor $PLAYER_ACTOR in_car 1@
+        then        
+            01C3: remove_references_to_car 1@
+            jump @char_activity
+        end
+        0227: 4@ = car 1@ health
+        if 05EE: key_pressed 187 
+        then
+            000B: 2@ += +2.5
+            wait 200 ms
+        end
+        if 05EE: key_pressed 189
+        then
+            if 0021: 2@ > 2.5 
+            then 
+                000B: 2@ += -2.5 
+            end
+            wait 200 ms
+        end
+        if 05EE: key_pressed 9 
+        then
+            if 0039: 5@ == 0 
+            then
+                0006: 5@ = 1
+                0006: 7@ = 1
+            else 
+                0006: 5@ = 0 
+            end
+            wait 200 ms
+        end
+        02E3: 6@ = car 1@ speed
+        if 0021: 6@ > 2@ 
+        then 
+            0006: 8@ = 1 
+        end
+        if and
+            00E1: key_pressed 0 14
+            0039: 5@ == 1
+        then 
+            0006: 5@ = 0 
+        end    
+        if 00E1: key_pressed 0 16
+        then
+            // nothing to do
+        else 
+            0006: 8@ = 0 
+        end    
+        00A0: store_actor $PLAYER_ACTOR position_to 15@ 16@ 17@ 
+        02CE: 14@ = ground_z_at 15@ 16@ 17@ 
+        0063: 14@ -= 17@ // (float)
+        if 84C9:   not player $PLAYER_CHAR in_flying_vehicle 
+        then
+            if or
+                0021:   14@ > 2.5 
+                0023:   -2.5 > 14@ 
+            then
+                break
+            end
+        end    
+        if or 
+            0039: 8@ == 1
+            0039: 5@ == 1
+        then
+            if or
+                00E1: key_pressed 0 10
+                00E1: key_pressed 0 11
+            then 
+                0006: 7@ = 1
+            else
+                if and
+                    0039: 7@ == 1
+                    0039: 5@ == 1
+                then
+                    while 0021: 2@ > 6@
+                        wait 20 ms
+                        000B: 6@ += +1.0
+                        04BA: set_car 1@ speed_to 6@
+                    end
+                    0006: 7@ = 0
+                else 
+                    04BA: set_car 1@ speed_to 2@ 
+                end
+            end
+        end 
+    end
+end
+01C3: remove_references_to_car 1@
+jump @char_activity

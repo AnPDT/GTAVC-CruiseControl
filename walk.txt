@@ -1,0 +1,61 @@
+{$CLEO}
+0000:   
+10@ = 8
+10@ *= 2
+10@ += 0x7DBCB0
+11@ = 9
+11@ *= 2
+11@ += 0x7DBCB0
+12@ = 10
+12@ *= 2
+12@ += 0x7DBCB0
+13@ = 11
+13@ *= 2
+13@ += 0x7DBCB0
+0@ = 0
+while true
+wait 50 ms
+if and
+    05EE: key_pressed 9
+    80E0:   not player $PLAYER_CHAR driving 
+    03EE:   player $PLAYER_CHAR controllable
+then
+    if 0039: 0@ == 0
+    then
+        0006: 0@ = 1
+    else
+        0006: 0@ = 0
+    end
+    wait 200 ms
+end
+05E0: 5@ = read_memory 0x00864C66 size 1 virtual_protect 1
+      if and
+      80E0:   not player $PLAYER_CHAR driving 
+      03EE:   player $PLAYER_CHAR controllable
+      0@ == 1 
+      then
+          if 
+            00E1:   key_pressed 0 8
+          then
+          05DF: write_memory 10@ size 2 value 0x55 virtual_protect 0  
+          end           
+          
+          if
+            00E1:   key_pressed 0 9
+          then
+          05DF: write_memory 11@ size 2 value 0x55 virtual_protect 0  
+          end  
+          
+          if
+            00E1:   key_pressed 0 10
+          then
+          05DF: write_memory 12@ size 2 value 0x55 virtual_protect 0  
+          end  
+          
+          if
+            00E1:   key_pressed 0 11
+          then
+          05DF: write_memory 13@ size 2 value 0x55 virtual_protect 0  
+          end  
+      end
+end
